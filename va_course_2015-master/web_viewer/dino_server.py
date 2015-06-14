@@ -40,9 +40,13 @@ class DataHandler(tornado.web.RequestHandler):
             guest_id = np.random.choice(df["id"])
         else:
             guest_id = int(guest_id)
-        guest_df = df.loc[df["id"]==guest_id]
-        guest_df_list = guest_df.to_dict("records")        
-        self.write({"array" :guest_df_list})
+        #guest_df = df.loc[df["id"]==guest_id]
+        #guest_df_list = guest_df.to_dict("records")        
+        #self.write({"array" :guest_df_list})
+        
+        df_checks_positions = df.loc[df["type"]=="check-in"].drop_duplicates(['X', 'Y']).ix[:,'X':]
+        df_checks_list = df_checks_positions.to_dict("records")
+        self.write({"array" :df_checks_list})
 
     def initialize(self, df):
         self.df = df[["X","Y","id","Timestamp","type"]]

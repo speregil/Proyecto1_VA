@@ -24,7 +24,11 @@
     var svg = d3.select("#main_svg");
     var scatter = svg.append("g");
 
-
+	function draw_checkins(array){
+		console.log("Llego la información");
+		console.log("Tamanio de la informacion: " + array.length);
+	}
+	
     function draw_guest(array) {
     // parse times
         array.forEach(function (e, i, a) {
@@ -69,7 +73,8 @@
         console.log("reading guest");
         d3.select("#show_guest_button").attr("disabled", true);
         d3.json("data", function (e, d) {
-            draw_guest(d.array);
+            //draw_guest(d.array);
+			draw_checkins(d.array);
         });
     }
 
