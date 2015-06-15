@@ -69,58 +69,95 @@ class DataHandler(tornado.web.RequestHandler):
         self.write({"array" :df_density})
         """
         
-        cuenta(63,99)
-        cuenta(0,67)
-        cuenta(99,77)
-        cuenta(73,84)
-        cuenta(76,88)
-        cuenta(17,43)
-        cuenta(6,43)
-        cuenta(38,90)
-        cuenta(73,79)
-        cuenta(27,15)
-        cuenta(43,78)
-        cuenta(87,81)
-        cuenta(79,89)
-        cuenta(32,33)
-        cuenta(34,68)
-        cuenta(83,88)
-        cuenta(86,44)
-        cuenta(16,49)
-        cuenta(79,87)
-        cuenta(60,37)
-        cuenta(48,87)
-        cuenta(43,56)
-        cuenta(85,86)
-        cuenta(87,63)
-        cuenta(17,67)
-        cuenta(92,81)
-        cuenta(45,24)
-        cuenta(69,44)
-        cuenta(78,48)
-        cuenta(87,48)
-        cuenta(82,80)
-        cuenta(47,11)
-        cuenta(67,37)
-        cuenta(16,66)
-        cuenta(23,54)
-        cuenta(42,37)
-        cuenta(28,66)
-        cuenta(78,37)
-        cuenta(81,77)
-        cuenta(26,59)
-        cuenta(50,57)
-        cuenta(76,22)
-        
-        data = pd.DataFrame(columns=('X', 'Y', 'count'))
+        cuenta(63,99, '', '', '')
+        cuenta(0,67, '', '', '')
+        cuenta(99,77, '', '', '')
+        cuenta(73,84, '', '', '')
+        cuenta(76,88, '', '', '')
+        cuenta(17,43, '', '', '')
+        cuenta(6,43, '', '', '')
+        cuenta(38,90, '', '', '')
+        cuenta(73,79, '', '', '')
+        cuenta(27,15, '', '', '')
+        cuenta(43,78, '', '', '')
+        cuenta(87,81, '', '', '')
+        cuenta(79,89, '', '', '')
+        cuenta(32,33, '', '', '')
+        cuenta(34,68, '', '', '')
+        cuenta(83,88, '', '', '')
+        cuenta(86,44, '', '', '')
+        cuenta(16,49, '', '', '')
+        cuenta(79,87, '', '', '')
+        cuenta(60,37, '', '', '')
+        cuenta(48,87, '', '', '')
+        cuenta(43,56, '', '', '')
+        cuenta(85,86, '', '', '')
+        cuenta(87,63, '', '', '')
+        cuenta(17,67, '', '', '')
+        cuenta(92,81, '', '', '')
+        cuenta(45,24, '', '', '')
+        cuenta(69,44, '', '', '')
+        cuenta(78,48, '', '', '')
+        cuenta(87,48, '', '', '')
+        cuenta(82,80, '', '', '')
+        cuenta(47,11, '', '', '')
+        cuenta(67,37, '', '', '')
+        cuenta(16,66, '', '', '')
+        cuenta(23,54, '', '', '')
+        cuenta(42,37, '', '', '')
+        cuenta(28,66, '', '', '')
+        cuenta(78,37, '', '', '')
+        cuenta(81,77, '', '', '')
+        cuenta(26,59, '', '', '')
+        cuenta(50,57, '', '', '')
+        cuenta(76,22, '', '', '')
         df_checks_list = data.to_dict("records")
         self.write({"array" :df_checks_list})
-        
+
     def initialize(self, df):
         self.df = df[["X","Y","id","Timestamp","type"]]
-
-def cuenta(x, y):
+        
+def cuenta(x, y, dia, hora, tipo):
+    if(tipo == 'Global'):
+        cuenta_global(x, y)
+    elif(tipo == 'Dia'):
+        cuenta_dia(x, y, dia)
+    else:
+        cuenta_medio_dia(x, y, dia, hora)
+        
+def cuenta_global(x, y):
     cuenta = df['X'].loc[(df['X'] == x) & (df['Y'] == y) & (df["type"]=="check-in")].count()
+    data.loc[len(data)+1]=[x, y,cuenta] 
+    
+def cuenta_dia(x, y, dia):
+    fecha = '';
+    if (dia == 'Viernes'):
+        fecha = '2014-06-06'
+    elif(dia == 'Sabado'):
+        fecha = '2014-06-07'
+    else:
+        fecha = '2014-06-08'
+    cuenta = df['X'].loc[(df['X'] == x) & (df['Y'] == y) & (df["type"]=="check-in") & (df['time'] >= fecha + ' 08:00:00') & (df['time'] <= fecha + ' 20:00:00')].count()
+    data.loc[len(data)+1]=[x, y,cuenta]
+    
+def cuenta_medio_dia(x, y, dia, hora):
+    fecha = '';
+    fechaInicio = '';
+    fechaFin = '';
+    if (dia == 'Viernes'):
+        fecha = '2014-06-06'
+    elif(dia == 'Sabado'):
+        fecha = '2014-06-07'
+    else:
+        fecha = '2014-06-08'
+        
+    if(hora == 'AM'):
+        fechaInicio = fecha + ' 08:00:00';
+        fechaFin = fecha + ' 14:00:00';        
+    if(hora == 'PM'):
+        fechaInicio = fecha + ' 14:00:01';
+        fechaFin = fecha + ' 20:00:00';
+    cuenta = df['X'].loc[(df['X'] == x) & (df['Y'] == y) & (df["type"]=="check-in") & (df['time'] >= fechaInicio) & (df['time'] <= fechaFin)].count()
     data.loc[len(data)+1]=[x, y,cuenta] 
 
 settings = {"template_path" : os.path.dirname(__file__),
