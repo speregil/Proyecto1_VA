@@ -68,7 +68,7 @@ class DataHandler(tornado.web.RequestHandler):
         df_density = pd.DataFrame.from_dict(data_list)
         self.write({"array" :df_density})
         """
-        
+        data = pd.DataFrame(columns=('X', 'Y', 'count'))
         cuenta(63,99, '', '', '')
         cuenta(0,67, '', '', '')
         cuenta(99,77, '', '', '')
@@ -125,25 +125,33 @@ def cuenta(x, y, dia, hora, tipo):
     else:
         cuenta_medio_dia(x, y, dia, hora)
         
+def cuenta(x, y, dia, hora, tipo):
+    if(tipo == 'Global'):
+        cuenta_global(x, y)
+    elif(tipo == 'Dia'):
+        cuenta_dia(x, y, dia)
+    else:
+        cuenta_medio_dia(x, y, dia, hora)
+        
 def cuenta_global(x, y):
     cuenta = df['X'].loc[(df['X'] == x) & (df['Y'] == y) & (df["type"]=="check-in")].count()
     data.loc[len(data)+1]=[x, y,cuenta] 
     
 def cuenta_dia(x, y, dia):
-    fecha = '';
+    fecha = ''
     if (dia == 'Viernes'):
         fecha = '2014-06-06'
     elif(dia == 'Sabado'):
         fecha = '2014-06-07'
     else:
         fecha = '2014-06-08'
-    cuenta = df['X'].loc[(df['X'] == x) & (df['Y'] == y) & (df["type"]=="check-in") & (df['time'] >= fecha + ' 08:00:00') & (df['time'] <= fecha + ' 20:00:00')].count()
+    cuenta = df['X'].loc[(df['X'] == x) & (df['Y'] == y) & (df["type"]=="check-in") & (df['time'] >= fecha + ' 00:00:00') & (df['time'] <= fecha + ' 23:00:00')].count()
     data.loc[len(data)+1]=[x, y,cuenta]
-    
+
 def cuenta_medio_dia(x, y, dia, hora):
-    fecha = '';
-    fechaInicio = '';
-    fechaFin = '';
+    fecha = ''
+    fechaInicio = ''
+    fechaFin = ''
     if (dia == 'Viernes'):
         fecha = '2014-06-06'
     elif(dia == 'Sabado'):
@@ -152,13 +160,147 @@ def cuenta_medio_dia(x, y, dia, hora):
         fecha = '2014-06-08'
         
     if(hora == 'AM'):
-        fechaInicio = fecha + ' 08:00:00';
-        fechaFin = fecha + ' 14:00:00';        
+        fechaInicio = fecha + ' 08:00:00'
+        fechaFin = fecha + ' 14:00:00'
     if(hora == 'PM'):
-        fechaInicio = fecha + ' 14:00:01';
-        fechaFin = fecha + ' 20:00:00';
+        fechaInicio = fecha + ' 14:00:01'
+        fechaFin = fecha + ' 20:00:00'
     cuenta = df['X'].loc[(df['X'] == x) & (df['Y'] == y) & (df["type"]=="check-in") & (df['time'] >= fechaInicio) & (df['time'] <= fechaFin)].count()
     data.loc[len(data)+1]=[x, y,cuenta] 
+
+def cuenta_visitas(dia, hora, tipo):
+    if(tipo == 'Dia'):
+        cuenta_visitas_dia(dia)
+    else:
+        cuenta_visitas_hora(dia, hora)
+
+def cuenta_visitas_hora(dia, hora):
+    data = pd.DataFrame(columns=('min', 'max', 'count'))
+    
+    fecha = ''
+    fechaInicio = ''
+    fechaFin = ''
+    if (dia == 'Viernes'):
+        fecha = '2014-06-06'
+    elif(dia == 'Sabado'):
+        fecha = '2014-06-07'
+    else:
+        fecha = '2014-06-08'
+        
+    if(hora == 'AM'):
+        fechaInicio = fecha + ' 08:00:00'
+        fechaFin = fecha + ' 14:00:00'
+    if(hora == 'PM'):
+        fechaInicio = fecha + ' 14:00:01'
+        fechaFin = fecha + ' 20:00:00'
+        
+    df_checks_positions = df.loc[(df["type"]=="check-in") & (df['time'] >= fechaInicio) & (df['time'] <= fechaFin)]
+    df_checks_positions
+    
+    df_us_visitas = df_checks_positions.groupby(['id']).count()
+
+    min = 0
+    max = 15
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 15
+    max = 25
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 25
+    max = 35
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 35
+    max = 100
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+def cuenta_visitas_dia(dia):
+    fecha = ''
+    
+    if (dia == 'Viernes'):
+        fecha = '2014-06-06'
+    elif(dia == 'Sabado'):
+        fecha = '2014-06-07'
+    else:
+        fecha = '2014-06-08'
+        
+    data = pd.DataFrame(columns=('min', 'max', 'count'))
+    
+    df_checks_positions = df.loc[(df["type"]=="check-in") & (df['time'] >= fecha + ' 00:00:00') & (df['time'] <= fecha + ' 23:00:00')]
+    df_checks_positions
+    
+    df_us_visitas = df_checks_positions.groupby(['id']).count()
+
+    min = 0
+    max = 15
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 15
+    max = 25
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 25
+    max = 35
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 35
+    max = 100
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+
+def promedio_visitas():
+    df_checks_positions = df.loc[df["type"]=="check-in"]
+    df_checks_positions
+    
+    df_us_visitas = df_checks_positions.groupby(['id']).count()
+    return df_us_visitas['Timestamp'].mean()
+    
+def cuenta_duracion_dia(dia):
+    fecha = ''
+    
+    if (dia == 'Viernes'):
+        fecha = '2014-06-06'
+    elif(dia == 'Sabado'):
+        fecha = '2014-06-07'
+    else:
+        fecha = '2014-06-08'
+        
+    data = pd.DataFrame(columns=('min', 'max', 'duration'))
+    
+    df_franja = df.loc[(df['time'] >= fecha + ' 00:00:00') & (df['time'] <= fecha + ' 23:00:00')]
+    grouped_times = df_franja.groupby("id")["time"]
+    arrivals = grouped_times.min()
+    departures = grouped_times.max()
+    duration = (departures.dt.hour+departures.dt.minute/60) - (arrivals.dt.hour+arrivals.dt.minute/60)
+    df_duration = pd.DataFrame(duration, columns=['duration'])
+    
+    min = 0
+    max = 10    
+    cuenta = df_duration.loc[(df_duration['duration'] >= min) & (df_duration['duration'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 10
+    max = 11    
+    cuenta = df_duration.loc[(df_duration['duration'] >= min) & (df_duration['duration'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 11
+    max = 12    
+    cuenta = df_duration.loc[(df_duration['duration'] >= min) & (df_duration['duration'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+ 
+    min = 12
+    max = 100   
+    cuenta = df_duration.loc[(df_duration['duration'] >= min) & (df_duration['duration'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
 
 settings = {"template_path" : os.path.dirname(__file__),
             "static_path" : os.path.join(os.path.dirname(__file__),"static"),
