@@ -93,7 +93,7 @@
             "dia="+"Sabado"+"&"+
             "hora="+"PM"+"&"+
             "tipo="+"Dia";
-        d3.json("promedio", function (e, d) {
+        d3.json(url, function (e, d) {
             test(d.array);
         });
     }

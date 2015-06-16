@@ -69,48 +69,48 @@ class DataHandler(tornado.web.RequestHandler):
         self.write({"array" :df_density})
         """
         data = pd.DataFrame(columns=('X', 'Y', 'count'))
-        cuenta(63,99, '', '', '')
-        cuenta(0,67, '', '', '')
-        cuenta(99,77, '', '', '')
-        cuenta(73,84, '', '', '')
-        cuenta(76,88, '', '', '')
-        cuenta(17,43, '', '', '')
-        cuenta(6,43, '', '', '')
-        cuenta(38,90, '', '', '')
-        cuenta(73,79, '', '', '')
-        cuenta(27,15, '', '', '')
-        cuenta(43,78, '', '', '')
-        cuenta(87,81, '', '', '')
-        cuenta(79,89, '', '', '')
-        cuenta(32,33, '', '', '')
-        cuenta(34,68, '', '', '')
-        cuenta(83,88, '', '', '')
-        cuenta(86,44, '', '', '')
-        cuenta(16,49, '', '', '')
-        cuenta(79,87, '', '', '')
-        cuenta(60,37, '', '', '')
-        cuenta(48,87, '', '', '')
-        cuenta(43,56, '', '', '')
-        cuenta(85,86, '', '', '')
-        cuenta(87,63, '', '', '')
-        cuenta(17,67, '', '', '')
-        cuenta(92,81, '', '', '')
-        cuenta(45,24, '', '', '')
-        cuenta(69,44, '', '', '')
-        cuenta(78,48, '', '', '')
-        cuenta(87,48, '', '', '')
-        cuenta(82,80, '', '', '')
-        cuenta(47,11, '', '', '')
-        cuenta(67,37, '', '', '')
-        cuenta(16,66, '', '', '')
-        cuenta(23,54, '', '', '')
-        cuenta(42,37, '', '', '')
-        cuenta(28,66, '', '', '')
-        cuenta(78,37, '', '', '')
-        cuenta(81,77, '', '', '')
-        cuenta(26,59, '', '', '')
-        cuenta(50,57, '', '', '')
-        cuenta(76,22, '', '', '')
+        cuenta(63,99, '', '', '',df)
+        cuenta(0,67, '', '', '',df)
+        cuenta(99,77, '', '', '',df)
+        cuenta(73,84, '', '', '',df)
+        cuenta(76,88, '', '', '',df)
+        cuenta(17,43, '', '', '',df)
+        cuenta(6,43, '', '', '',df)
+        cuenta(38,90, '', '', '',df)
+        cuenta(73,79, '', '', '',df)
+        cuenta(27,15, '', '', '',df)
+        cuenta(43,78, '', '', '',df)
+        cuenta(87,81, '', '', '',df)
+        cuenta(79,89, '', '', '',df)
+        cuenta(32,33, '', '', '',df)
+        cuenta(34,68, '', '', '',df)
+        cuenta(83,88, '', '', '',df)
+        cuenta(86,44, '', '', '',df)
+        cuenta(16,49, '', '', '',df)
+        cuenta(79,87, '', '', '',df)
+        cuenta(60,37, '', '', '',df)
+        cuenta(48,87, '', '', '',df)
+        cuenta(43,56, '', '', '',df)
+        cuenta(85,86, '', '', '',df)
+        cuenta(87,63, '', '', '',df)
+        cuenta(17,67, '', '', '',df)
+        cuenta(92,81, '', '', '',df)
+        cuenta(45,24, '', '', '',df)
+        cuenta(69,44, '', '', '',df)
+        cuenta(78,48, '', '', '',df)
+        cuenta(87,48, '', '', '',df)
+        cuenta(82,80, '', '', '',df)
+        cuenta(47,11, '', '', '',df)
+        cuenta(67,37, '', '', '',df)
+        cuenta(16,66, '', '', '',df)
+        cuenta(23,54, '', '', '',df)
+        cuenta(42,37, '', '', '',df)
+        cuenta(28,66, '', '', '',df)
+        cuenta(78,37, '', '', '',df)
+        cuenta(81,77, '', '', '',df)
+        cuenta(26,59, '', '', '',df)
+        cuenta(50,57, '', '', '',df)
+        cuenta(76,22, '', '', '',df)
         df_checks_list = data.to_dict("records")
         self.write({"array" :df_checks_list})
 
@@ -169,18 +169,21 @@ class DuracionHandler(tornado.web.RequestHandler):
         self.df = df
 
 def cuenta(x, y, dia, hora, tipo, df):
+    global data
+    data = pd.DataFrame(columns=('X', 'Y', 'count'))
+    
     if(tipo == 'Global'):
-        return cuenta_global(x, y, df)
+        return cuenta_global(x, y, df,data)
     elif(tipo == 'Dia'):
-        return cuenta_dia(x, y, dia)
+        return cuenta_dia(x, y, dia,df,data)
     else:
-        return cuenta_medio_dia(x, y, dia, hora)
+        return cuenta_medio_dia(x, y, dia, hora,df,data)
         
-def cuenta_global(x, y, df):
+def cuenta_global(x, y, df,data):
     cuenta = df['X'].loc[(df['X'] == x) & (df['Y'] == y) & (df["type"]=="check-in")].count()
     data.loc[len(data)+1]=[x, y,cuenta]
     
-def cuenta_dia(x, y, dia):
+def cuenta_dia(x, y, dia,df,data):
     fecha = ''
     if (dia == 'Viernes'):
         fecha = '2014-06-06'
@@ -191,7 +194,7 @@ def cuenta_dia(x, y, dia):
     cuenta = df['X'].loc[(df['X'] == x) & (df['Y'] == y) & (df["type"]=="check-in") & (df['time'] >= fecha + ' 00:00:00') & (df['time'] <= fecha + ' 23:00:00')].count()
     data.loc[len(data)+1]=[x, y,cuenta]
 
-def cuenta_medio_dia(x, y, dia, hora):
+def cuenta_medio_dia(x, y, dia, hora,df,data):
     fecha = ''
     fechaInicio = ''
     fechaFin = ''
@@ -212,15 +215,17 @@ def cuenta_medio_dia(x, y, dia, hora):
     data.loc[len(data)+1]=[x, y,cuenta] 
 
 def cuenta_visitas(dia, hora, tipo, df):
+    global data
+    data = pd.DataFrame(columns=('X', 'Y', 'count'))
+    
     if(tipo == 'Dia'):
-        cuenta_visitas_dia(dia, df)
+        cuenta_visitas_dia(dia, df,data)
     elif(tipo == 'Hora'):
-        cuenta_visitas_hora(dia, hora, df)
+        cuenta_visitas_hora(dia, hora, df,data)
     else:
-        cuenta_visitas_menos6(dia, df)
+        cuenta_visitas_menos6(dia, df,data)
 
-def cuenta_visitas_hora(dia, hora, df):
-    data = pd.DataFrame(columns=('min', 'max', 'count'))
+def cuenta_visitas_hora(dia, hora, df,data):
     
     fecha = ''
     fechaInicio = ''
@@ -264,7 +269,7 @@ def cuenta_visitas_hora(dia, hora, df):
     cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
     data.loc[len(data)+1]=[min, max, cuenta]
     
-def cuenta_visitas_dia(dia, df):
+def cuenta_visitas_dia(dia, df,data):
     fecha = ''
     
     if (dia == 'Viernes'):
@@ -274,7 +279,6 @@ def cuenta_visitas_dia(dia, df):
     else:
         fecha = '2014-06-08'
         
-    data = pd.DataFrame(columns=('min', 'max', 'count'))
     
     df_checks_positions = df.loc[(df["type"]=="check-in") & (df['time'] >= fecha + ' 00:00:00') & (df['time'] <= fecha + ' 23:00:00')]
     df_checks_positions
@@ -301,7 +305,7 @@ def cuenta_visitas_dia(dia, df):
     cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
     data.loc[len(data)+1]=[min, max, cuenta]
 
-def cuenta_visitas_menos6(dia, df):
+def cuenta_visitas_menos6(dia, df,data):
     fecha = ''
     
     if (dia == 'Viernes'):
