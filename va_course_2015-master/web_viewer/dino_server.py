@@ -218,12 +218,40 @@ def cuenta_visitas(dia, hora, tipo, df):
     global data
     data = pd.DataFrame(columns=('X', 'Y', 'count'))
     
-    if(tipo == 'Dia'):
+    if(tipo == 'Global'):
+        cuenta_visitas_global(df, data):
+    elif(tipo == 'Dia'):
         cuenta_visitas_dia(dia, df,data)
     elif(tipo == 'Hora'):
         cuenta_visitas_hora(dia, hora, df,data)
     else:
         cuenta_visitas_menos6(dia, df,data)
+
+def cuenta_visitas_global(df, data):
+    df_checks_positions = df.loc[(df["type"]=="check-in")]
+    df_checks_positions
+    
+    df_us_visitas = df_checks_positions.groupby(['id']).count()
+
+    min = 0
+    max = 15
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 15
+    max = 25
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 25
+    max = 35
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 35
+    max = 100
+    cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
 
 def cuenta_visitas_hora(dia, hora, df,data):
     
@@ -332,6 +360,35 @@ def promedio_visitas(df):
     
     df_us_visitas = df_checks_positions.groupby(['id']).count()
     return df_us_visitas['Timestamp'].mean()
+    
+def cuenta_duracion_global(dia, df):
+     data = pd.DataFrame(columns=('min', 'max', 'duration'))
+    
+    grouped_times = df.groupby("id")["time"]
+    arrivals = grouped_times.min()
+    departures = grouped_times.max()
+    duration = (departures.dt.hour+departures.dt.minute/60) - (arrivals.dt.hour+arrivals.dt.minute/60)
+    df_duration = pd.DataFrame(duration, columns=['duration'])
+    
+    min = 0
+    max = 10    
+    cuenta = df_duration.loc[(df_duration['duration'] >= min) & (df_duration['duration'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 10
+    max = 11    
+    cuenta = df_duration.loc[(df_duration['duration'] >= min) & (df_duration['duration'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+    
+    min = 11
+    max = 12    
+    cuenta = df_duration.loc[(df_duration['duration'] >= min) & (df_duration['duration'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
+ 
+    min = 12
+    max = 100   
+    cuenta = df_duration.loc[(df_duration['duration'] >= min) & (df_duration['duration'] < max)].shape[0]
+    data.loc[len(data)+1]=[min, max, cuenta]
     
 def cuenta_duracion_dia(dia, df):
     fecha = ''
