@@ -82,7 +82,7 @@
 	
 	function test(array){
 		console.log("Llego la informacion");
-		console.log(array[0]);
+		console.log(array);
 	}
 
     function read_guest() {
