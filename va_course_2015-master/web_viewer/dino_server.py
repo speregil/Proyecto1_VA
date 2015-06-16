@@ -361,7 +361,7 @@ def promedio_visitas(df):
     df_us_visitas = df_checks_positions.groupby(['id']).count()
     return df_us_visitas['Timestamp'].mean()
     
-def cuenta_duracion_global(dia, df):
+def cuenta_duracion_global(df):
      data = pd.DataFrame(columns=('min', 'max', 'duration'))
     
     grouped_times = df.groupby("id")["time"]
