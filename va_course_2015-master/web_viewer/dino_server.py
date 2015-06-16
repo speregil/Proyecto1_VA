@@ -116,26 +116,69 @@ class DataHandler(tornado.web.RequestHandler):
 
     def initialize(self, df):
         self.df = df[["X","Y","id","Timestamp","type"]]
+       
+class ConteoHandler(tornado.web.RequestHandler):
+    def get(self):    
+        df = self.df
+        pos_x = int(self.get_argument("x"))
+        pos_y = float(self.get_argument("y"))
+        dia = self.get_argument("dia")
+        hora = self.get_argument("hora")
+        tipo = self.get_argument("tipo")
         
-def cuenta(x, y, dia, hora, tipo):
+        cuenta(pos_x,pos_y,dia,hora,tipo, df)
+        df_checks_list = data.to_dict("records")
+        self.write({"array" :df_checks_list})
+    
+    def initialize(self, df):
+        self.df = df
+        
+class VisitasHandler(tornado.web.RequestHandler):
+    def get(self):    
+        df = self.df
+        dia = self.get_argument("dia")
+        hora = self.get_argument("hora")
+        tipo = self.get_argument("tipo")
+        
+        cuenta_visitas(dia,hora,tipo, df)
+        df_checks_list = data.to_dict("records")
+        self.write({"array" :df_checks_list})
+    
+    def initialize(self, df):
+        self.df = df
+
+class PromedioHandler(tornado.web.RequestHandler):
+    def get(self):    
+        df = self.df
+        promedio_visitas(df)
+        df_checks_list = data.to_dict("records")
+        self.write({"array" :df_checks_list})
+    
+    def initialize(self, df):
+        self.df = df
+        
+class DuracionHandler(tornado.web.RequestHandler):
+    def get(self):    
+        df = self.df
+        dia = self.get_argument("dia")
+        cuenta_duracion_dia(dia, df)
+        df_checks_list = data.to_dict("records")
+        self.write({"array" :df_checks_list})
+    
+    def initialize(self, df):
+        self.df = df
+
+def cuenta(x, y, dia, hora, tipo, df):
     if(tipo == 'Global'):
-        cuenta_global(x, y)
+        return cuenta_global(x, y, df)
     elif(tipo == 'Dia'):
-        cuenta_dia(x, y, dia)
+        return cuenta_dia(x, y, dia)
     else:
-        cuenta_medio_dia(x, y, dia, hora)
+        return cuenta_medio_dia(x, y, dia, hora)
         
-def cuenta(x, y, dia, hora, tipo):
-    if(tipo == 'Global'):
-        cuenta_global(x, y)
-    elif(tipo == 'Dia'):
-        cuenta_dia(x, y, dia)
-    else:
-        cuenta_medio_dia(x, y, dia, hora)
-        
-def cuenta_global(x, y):
+def cuenta_global(x, y, df):
     cuenta = df['X'].loc[(df['X'] == x) & (df['Y'] == y) & (df["type"]=="check-in")].count()
-    data.loc[len(data)+1]=[x, y,cuenta] 
+    data.loc[len(data)+1]=[x, y,cuenta]
     
 def cuenta_dia(x, y, dia):
     fecha = ''
@@ -168,13 +211,15 @@ def cuenta_medio_dia(x, y, dia, hora):
     cuenta = df['X'].loc[(df['X'] == x) & (df['Y'] == y) & (df["type"]=="check-in") & (df['time'] >= fechaInicio) & (df['time'] <= fechaFin)].count()
     data.loc[len(data)+1]=[x, y,cuenta] 
 
-def cuenta_visitas(dia, hora, tipo):
+def cuenta_visitas(dia, hora, tipo, df):
     if(tipo == 'Dia'):
-        cuenta_visitas_dia(dia)
+        cuenta_visitas_dia(dia, df)
+    elif(tipo == 'Hora'):
+        cuenta_visitas_hora(dia, hora, df)
     else:
-        cuenta_visitas_hora(dia, hora)
+        cuenta_visitas_menos6(dia, df)
 
-def cuenta_visitas_hora(dia, hora):
+def cuenta_visitas_hora(dia, hora, df):
     data = pd.DataFrame(columns=('min', 'max', 'count'))
     
     fecha = ''
@@ -219,7 +264,7 @@ def cuenta_visitas_hora(dia, hora):
     cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
     data.loc[len(data)+1]=[min, max, cuenta]
     
-def cuenta_visitas_dia(dia):
+def cuenta_visitas_dia(dia, df):
     fecha = ''
     
     if (dia == 'Viernes'):
@@ -256,14 +301,35 @@ def cuenta_visitas_dia(dia):
     cuenta = df_us_visitas.loc[(df_us_visitas['Timestamp'] >= min) & (df_us_visitas['Timestamp'] < max)].shape[0]
     data.loc[len(data)+1]=[min, max, cuenta]
 
-def promedio_visitas():
+def cuenta_visitas_menos6(dia, df):
+    fecha = ''
+    
+    if (dia == 'Viernes'):
+        fecha = '2014-06-06'
+    elif(dia == 'Sabado'):
+        fecha = '2014-06-07'
+    else:
+        fecha = '2014-06-08'
+    
+    df_franja = df.loc[(df['time'] >= fecha + ' 00:00:00') & (df['time'] <= fecha + ' 23:00:00')]
+    grouped_times = df_franja.groupby("id")["time"]
+    arrivals = grouped_times.min()
+    departures = grouped_times.max()
+    duration = (departures.dt.hour+departures.dt.minute/60) - (arrivals.dt.hour+arrivals.dt.minute/60)
+    df_duration = pd.DataFrame(duration, columns=['duration'])
+    df_index = df_duration.loc[(df_duration['duration'] >= 0) & (df_duration['duration'] < 6)]
+    df_ids_under_6 = df.join(other=df_index, on='id',how='inner')
+    df_checks_under_6 = df_ids_under_6.loc[df_ids_under_6['type'] == 'check-in']
+    data.loc[len(data)+1]= df_checks_under_6
+
+
+def promedio_visitas(df):
     df_checks_positions = df.loc[df["type"]=="check-in"]
-    df_checks_positions
     
     df_us_visitas = df_checks_positions.groupby(['id']).count()
     return df_us_visitas['Timestamp'].mean()
     
-def cuenta_duracion_dia(dia):
+def cuenta_duracion_dia(dia, df):
     fecha = ''
     
     if (dia == 'Viernes'):
@@ -309,12 +375,25 @@ settings = {"template_path" : os.path.dirname(__file__),
 
 if __name__ == "__main__":
     path = os.path.join(os.path.dirname(__file__), "../../../MC1 2015 Data/park-movement-Fri.csv")
-    print('loading...')
-    df = pd.read_csv(path)
+    print('Cargando datos del Viernes...')
+    dfFri = pd.read_csv(path)
+    path = os.path.join(os.path.dirname(__file__), "../../../MC1 2015 Data/park-movement-Sat.csv")
+    print('Cargando datos del Sabado...')
+    dfSat = pd.read_csv(path)
+    #path = os.path.join(os.path.dirname(__file__), "../../../MC1 2015 Data/park-movement-Sun.csv")
+    #print('Cargando datos del Domingo...')
+    #dfSun = pd.read_csv(path)
+    print('Combinando los datos')
+    df = dfFri.append([dfSat], ignore_index=True)
+    print('Ajustando datos de fechas')    
     df["time"] = pd.to_datetime(df.Timestamp, format="%Y-%m-%d %H:%M:%S")
 
     application = tornado.web.Application([
         (r"/", MainHandler),
+        (r"/conteo",ConteoHandler,{"df":df}),
+        (r"/visitas",VisitasHandler,{"df":df}),
+        (r"/promedio",PromedioHandler,{"df":df}),
+        (r"/duracion",DuracionHandler,{"df":df}),
         (r"/data", DataHandler,{"df":df}),
         (r"/filter", DinoFilter),
         (r"/filter_data", FilterData,{"df":df}),
@@ -323,6 +402,6 @@ if __name__ == "__main__":
 
     ], **settings)
     application.listen(8100)
-    print("ready")
+    print("Listo")
     tornado.ioloop.IOLoop.current().start()
 

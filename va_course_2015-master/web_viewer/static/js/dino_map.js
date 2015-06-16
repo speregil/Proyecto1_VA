@@ -80,15 +80,21 @@
     
 	}
 	
-   
+	function test(array){
+		console.log("Llego la informacion");
+		console.log(array[0]);
+	}
 
     function read_guest() {
         scatter.selectAll(".checkin").remove();
         console.log("reading guest");
         d3.select("#show_guest_button").attr("disabled", true);
-        d3.json("data", function (e, d) {
-            //draw_guest(d.array);
-			draw_checkins(d.array);
+		var url="visitas?"+
+            "dia="+"Sabado"+"&"+
+            "hora="+"PM"+"&"+
+            "tipo="+"Dia";
+        d3.json("promedio", function (e, d) {
+            test(d.array);
         });
     }
 
