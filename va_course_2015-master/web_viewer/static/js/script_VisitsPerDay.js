@@ -7,10 +7,13 @@
 	var switchFirstTime = true;
 	var specificHeightDomainWhenUpdate;
 	ridesPerPersonFirstLoad();
+	d3.select("#questionVisits .button_both").on("click", ridesPerPersonBoth);
 	d3.select("#questionVisits .button_friday").on("click", ridesPerPersonFriday);		
 	d3.select("#questionVisits .button_saturday").on("click", ridesPerPersonSaturday);
-	//d3.select("#questionVisits .button_sunday").on("click", ridesPerPersonSunday);
 	
+	function probar(){
+		console.log("es click en both");
+	}
 	function crearArray_visitPerDay(array){
 		dataset = array;
 		console.log("Llego la informacion");	
@@ -22,20 +25,23 @@
 			updateGraphstoDay();
 		}
 	}
-	function ridesPerPersonFirstLoad() {        				
+	function ridesPerPersonFirstLoad() { 
+	$("#questionVisits .diaEscogido").html("Loading....");        				
 		//updateGraphstoDay();			
         console.log("reading guest");        
 		var url="visitas?"+
             "dia="+"Sabado"+"&"+
             "hora="+"PM"+"&"+
-            "tipo="+"Dia";
+            "tipo="+"Global";
         d3.json(url, function (e, d) {
             crearArray_visitPerDay(d.array);
 			console.log(d.array);
+			$("#questionVisits .diaEscogido").html("Both days"); 
         });
 	
     }
-    function ridesPerPersonFriday() {        				
+    function ridesPerPersonFriday() { 
+	     $("#questionVisits .diaEscogido").html("Loading...."); 
 		//updateGraphstoDay();
 		switchFirstTime = false;
         console.log("reading guest");        
@@ -46,9 +52,11 @@
         d3.json(url, function (e, d) {
             crearArray_visitPerDay(d.array);
 			console.log(d.array);
+			$("#questionVisits .diaEscogido").html("Friday"); 
         });	
     }
-	function ridesPerPersonSaturday() {        				
+	function ridesPerPersonSaturday() { 
+	$("#questionVisits .diaEscogido").html("Loading....");        				
 		//updateGraphstoDay();
 		switchFirstTime = false;
         console.log("reading guest");        
@@ -59,6 +67,23 @@
         d3.json(url, function (e, d) {
             crearArray_visitPerDay(d.array);
 			console.log(d.array);
+			$("#questionVisits .diaEscogido").html("Saturday"); 
+        });	
+    }
+	function ridesPerPersonBoth() { 
+	$("#questionVisits .diaEscogido").html("Loading....");  
+	console.log("leyendo ambos");         				
+		//updateGraphstoDay();
+		switchFirstTime = false;
+             
+		var url="visitas?"+
+            "dia="+"Sabado"+"&"+
+            "hora="+"PM"+"&"+
+            "tipo="+"Global";
+        d3.json(url, function (e, d) {
+            crearArray_visitPerDay(d.array);
+			console.log(d.array);
+			$("#questionVisits .diaEscogido").html("Both days"); 
         });	
     }
 	
@@ -89,9 +114,9 @@ function createFirstTimeGraph(){
 		var svg = d3.select("#questionVisits .ourGraph")
 					.append("svg")
 					.attr("width", w)
-					.attr("height", h+40);
+					.attr("height", h+70);
 		var g = svg.append("g")
-			.attr("transform", "translate(0,20)");
+			.attr("transform", "translate(0,30)");
 		//Create bars
 		g.selectAll("rect")
 		   .data(dataset)

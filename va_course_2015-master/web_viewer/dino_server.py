@@ -219,7 +219,7 @@ def cuenta_visitas(dia, hora, tipo, df):
     data = pd.DataFrame(columns=('X', 'Y', 'count'))
     
     if(tipo == 'Global'):
-        cuenta_visitas_global(df, data):
+        cuenta_visitas_global(df, data)
     elif(tipo == 'Dia'):
         cuenta_visitas_dia(dia, df,data)
     elif(tipo == 'Hora'):
@@ -362,7 +362,7 @@ def promedio_visitas(df):
     return df_us_visitas['Timestamp'].mean()
     
 def cuenta_duracion_global(df):
-     data = pd.DataFrame(columns=('min', 'max', 'duration'))
+    data = pd.DataFrame(columns=('min', 'max', 'duration'))
     
     grouped_times = df.groupby("id")["time"]
     arrivals = grouped_times.min()
@@ -391,6 +391,7 @@ def cuenta_duracion_global(df):
     data.loc[len(data)+1]=[min, max, cuenta]
     
 def cuenta_duracion_dia(dia, df):
+    global data    
     fecha = ''
     
     if (dia == 'Viernes'):

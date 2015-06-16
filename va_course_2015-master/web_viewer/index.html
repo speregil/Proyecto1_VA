@@ -37,16 +37,19 @@
       <p>With the data that was gathered during the weekend that Scott Jones visited the park, the market team has 2 strategies: restrict the available rides the people has during the days and create combo packs with half days during the weekends so they can offer cheaper tickets. </p>
       <p>In order to make decisions, the market team needs to answer the following questions:</p>
     </header>
-    <section id="questionStay">
+    <section id="questiontimePerPerson">
       <h3>How long  do the people stay at the park? </h3>
+      <div id="diaEscogido">Saturday</div>
       <div class="ourGraph">
+      
       </div>
       <div class="dayButtons">
       	<a class="button_friday">Friday</a>
         <a class="button_saturday" >Saturday</a>
-        <a class="button_sunday" >Sunday</a>
+        <!--<a class="button_sunday" >Sunday</a>-->
       </div>
       
+      <script src="static/js/script_timePerPerson.js"></script>
          
  
     </section>
@@ -65,13 +68,15 @@
     
     <section id="questionVisits">
       <h3> How many rides does a person visit during a day? </h3>
+      <div class="diaEscogido">Both days</div>
       <div class="ourGraph">
       
       </div>
       <div class="dayButtons">
+      	<a class="button_both">Both Days</a>
       	<a class="button_friday">Friday</a>
         <a class="button_saturday">Saturday</a>
-        <!--<a class="button_sunday">Sunday</a>-->
+        
       </div>
        <script src="static/js/script_VisitsPerDay.js"></script>
     </section>

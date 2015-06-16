@@ -105,3 +105,5 @@ va_course_2015-master/web_viewer/static/js/graphScripts/script_questionStayHalfD
 va_course_2015-master/web_viewer/static/js/graphScripts/script_questionStayHalfDay.js
 
 va_course_2015-master/web_viewer/index.html
+
+va_course_2015-master/web_viewer/static/js/script_timePerPerson.js

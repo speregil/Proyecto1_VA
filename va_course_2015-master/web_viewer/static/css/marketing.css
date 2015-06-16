@@ -22,7 +22,13 @@ h1,h2,h3,h4,h5,h6{
 img, object, embed, video {
 	max-width: 100%;
 }
-
+#diaEscogido{
+	width:100%;
+	display:block;
+	clear:both;
+	float:left;
+	
+}
 header{
 	width:60%;
 	margin:0% auto;
