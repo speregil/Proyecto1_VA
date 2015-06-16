@@ -98,4 +98,6 @@
         });
     }
 
-    d3.select("#show_guest_button").on("click", read_guest);
+    //d3.select("#show_guest_button").on("click", read_guest);
+	
+	 d3.select("#questionStay .dayButtons .button_friday").on("click", read_guest);

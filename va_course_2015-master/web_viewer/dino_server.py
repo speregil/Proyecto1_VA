@@ -9,7 +9,7 @@ data = pd.DataFrame(columns=('X', 'Y', 'count'))
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
-        self.render("dino_map.html")
+        self.render("index.html")
 
 class DinoFilter(tornado.web.RequestHandler):
     def get(self):
